@@ -53,9 +53,9 @@ expects `f v/vt/vn` and `vn x y z`
 ## renders
 recursion depth limit set to 5, resolution 600 x 400
 
-![big cat (30 samples. 4m35s)](cat1.png)
+![big cat (30 samples. 4m35s)](renders/cat1.png)
 
-![little cat and hollow sphere (5 samples)](cat2.png)
+![little cat and hollow sphere (5 samples)](renders/cat2.png)
 
 ![from left to right: spheres showing diffraction, refraction, reflection and
-a hollow refractive sphere (90 samples, 8.6s)](balls.png)
+a hollow refractive sphere (90 samples, 8.6s)](renders/balls.png)
