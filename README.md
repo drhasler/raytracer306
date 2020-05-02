@@ -47,8 +47,10 @@ by the ambient one.
 expects `f v/vt/vn` and `vn x y z`
 
 ## external res
-- `Models_F0202A090/*` cat model and texture
+- `Models_F0202A090/*`
+[cat model and texture](http://www.cadnav.com/3d-models/model-47556.html)
 - `stb_image_write.h` and `stb_image.h`
+[STB library](https://github.com/nothings/stb)
 
 ## renders
 recursion depth limit set to 5, resolution 600 x 400
