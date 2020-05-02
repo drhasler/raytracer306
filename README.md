@@ -21,7 +21,7 @@ this raytracer can render:
 - diffuse, refractive, reflective and emitting spheres
 - meshes, with UV mapping
 
-it does not handle phong reflections nor dissipative media (smoke, etc.)
+it does not handle phong reflections nor participating media (smoke, etc.)
 
 ## details and tricks
 ### parallelism
