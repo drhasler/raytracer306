@@ -76,11 +76,6 @@ struct BVH {
 };
 
 struct Mesh {
-    Mesh() { // one indexed
-        vtx.push_back(vec{});
-        norm.push_back(vec{});
-        uv.push_back(vec{});
-    }
     void shift(vec o) { for (auto& v: vtx) v += o; }
     void scale(double f) { for (auto& v: vtx) v = v*f; }
     void rot(double yaw, double pit, double rol) {
@@ -144,6 +139,37 @@ struct Mesh {
     std::vector<tri_idx> tri;
     BVH* bvh;
 };
+
+Mesh load_cat() {
+    std::ifstream is("Models_F0202A090/cat.obj");
+    if (!is.is_open()) { std::cerr << "couldnt open it\n"; exit(1); }
+
+    Mesh m; std::string s;
+    while (is >> s) {
+        if (s[0] == 'v') {
+            double x,y,z;
+            is >> x >> y >> z;
+            ( s.size()==1 ? m.vtx : s[1]=='n' ? m.norm : m.uv )
+                .push_back(vec{x,y,z});
+        } else if (s[0] == 'f') {
+            char c; tri_idx t;
+            for (int i=0; i<3; i++) {
+                is >> t.vtx[i] >> c >> t.uv[i] >> c >> t.norm[i];
+                t.vtx[i]--; t.uv[i]--; t.norm[i]--;
+            }
+            m.tri.push_back(t);
+        }
+        is.ignore(256,'\n');
+    }
+    int nc;
+    m.mat.img = stbi_load("Models_F0202A090/cat_diff.png",
+            &m.mat.w, &m.mat.h, &nc, 3);
+    m.shift(vec{0,-20,0});
+    m.scale(1.2);
+    m.rot(-2.5,0,0);
+    m.make_bvh();
+    return m;
+}
 
 std::ostream& operator<<(std::ostream& os, const bbox& b)
 {   return os << "bbox{"

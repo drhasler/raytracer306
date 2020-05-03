@@ -96,36 +96,8 @@ void init(Scene& scene) {
         {{0,0,-1000},940,{vec{5,255,161}/255}},
         {{-10,25,20},10,{1.5e10,LIGHT}},
     };
-
-    /* no cat :(
-    std::ifstream is("Models_F0202A090/cat.obj");
-    if (!is.is_open()) { std::cerr << "couldnt open it\n"; exit(1); }
-    std::string s;
-
-    scene.meshes.push_back(Mesh());
-    auto& m = scene.meshes.back();
-    while (is >> s) {
-        if (s[0] == 'v') {
-            double x,y,z;
-            is >> x >> y >> z;
-            ( s[1]=='n' ? m.norm : s[1]=='t' ? m.uv : m.vtx )
-                .push_back(vec{x,y,z});
-        } else if (s[0] == 'f') {
-            char c; tri_idx t;
-            for (int i=0; i<3; i++)
-                is >> t.vtx[i] >> c >> t.uv[i] >> c >> t.norm[i];
-            m.tri.push_back(t);
-        }
-        is.ignore(256,'\n');
-    }
-    int nc;
-    m.mat.img = stbi_load("Models_F0202A090/cat_diff.png",
-            &m.mat.w, &m.mat.h, &nc, 3);
-    m.shift(vec{0,-20,0});
-    m.scale(1.2);
-    m.rot(-2.5,0,0);
-    m.make_bvh();
-    */
+    
+    scene.meshes.push_back( load_cat() );
 }
 
 struct Camera {
@@ -139,7 +111,7 @@ int main() {
     Camera cam({0,0,55},60*M_PI/180);
 
     const int W = 600, H = 400;
-    const int n_sampl = 90, max_depth = 5;
+    const int n_sampl = 2, max_depth = 5;
     double DoF = .5;
     double AA = .2;
     uint8_t img[H][W][3];
