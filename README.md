@@ -9,8 +9,8 @@ CSE306 - Ecole polytechnique, Bachelor of Science - SS20
 - `random.cpp` random sampling of rays
 - `mat.cpp` material and UV classes
 - `sphere.cpp` self explanatory
-- `mesh.cpp` triangle, mesh and BVH tree
-- `main.cpp` scene, camera, and tiny `.obj` parser; rendering
+- `mesh.cpp` triangle, mesh, BVH tree and tiny `.obj` parser
+- `main.cpp` scene, camera classes; rendering
 
 (for grading)
 `pandoc <(echo "# Report"; cat README.md) -o report.pdf`
