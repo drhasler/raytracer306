@@ -9,18 +9,14 @@ struct Material {
 };
 
 struct UV {
-    unsigned char* img;
+    std::vector<vec> img;
     int w,h;
 
     vec col(double x, double y) const {
-        if ((x -= round(x)) < 0) x += 1;
-        if ((y -= round(y)) < 0) y += 1;
+        x -= floor(x);
+        y -= floor(y);
         int X = x*w;
         int Y = (1-y)*h;
-        return vec{
-            (double)img[3*(Y*w+X) + 0],
-            (double)img[3*(Y*w+X) + 1],
-            (double)img[3*(Y*w+X) + 2],
-        } / 255;
+        return img[Y*w+X];
     }
 };

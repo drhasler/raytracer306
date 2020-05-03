@@ -40,10 +40,12 @@ struct bbox {
 };
 
 struct BVH {
+    static const int max_size = 5;
+
     BVH(int l, int r,
         std::vector<tri_idx>& trii,
         const std::vector<vec>& vtx) : bb(l,r,trii,vtx) {
-        if (r-l <= 5) {
+        if (r-l <= max_size) {
             leaf = 1;
             tri = {l,r};
             return;
@@ -67,10 +69,10 @@ struct BVH {
                     { return center(a).z < center(b).z; });
         }
         int m = (l+r) / 2;
-        child = { new BVH(l,m,trii,vtx), new BVH(m,r,trii,vtx) };
+        kids = { new BVH(l,m,trii,vtx), new BVH(m,r,trii,vtx) };
     }
     union { std::pair<int,int> tri;
-            std::pair<BVH*,BVH*> child; };
+            std::pair<BVH*,BVH*> kids; };
     bbox bb;
     bool leaf;
 };
@@ -95,13 +97,15 @@ struct Mesh {
     void make_bvh() { bvh = new BVH(0,tri.size(), tri, vtx); }
     double intersect(const Ray& r, vec& P, vec& N, vec& alb) const {
         double t = inf;
-        std::vector<BVH*> dfs = { bvh };
+        std::vector<BVH*> dfs;
+        dfs.reserve(16);
+        dfs.push_back(bvh);
         while (dfs.size()) {
             auto cur = dfs.back(); dfs.pop_back();
             if (!cur->bb.intersect(r)) continue;
             if (!cur->leaf) {
-                dfs.push_back(cur->child.first);
-                dfs.push_back(cur->child.second);
+                dfs.push_back(cur->kids.first);
+                dfs.push_back(cur->kids.second);
                 continue;
             }
             auto [bi,ei] = cur->tri;
@@ -116,7 +120,8 @@ struct Mesh {
                 double a = 1-b-c;
                 if ( a >= 0 & a <= 1
                    & b >= 0 & b <= 1
-                   & c >= 0 & c <= 1 ) {
+                   & c >= 0 & c <= 1
+                   & t >= 0) {
                     double alt = dot(e1,cross(e2,OA)) / den;
                     if (alt < t) {
                         t = alt;
@@ -161,9 +166,15 @@ Mesh load_cat() {
         }
         is.ignore(256,'\n');
     }
-    int nc;
-    m.mat.img = stbi_load("Models_F0202A090/cat_diff.png",
+    int nc; // number of components
+    auto img = stbi_load("Models_F0202A090/cat_diff.png",
             &m.mat.w, &m.mat.h, &nc, 3);
+    m.mat.img.resize(m.mat.w*m.mat.h);
+    for (int i=0; i<m.mat.h; i++) for (int j=0; j<m.mat.w; j++) {
+        int id = i*m.mat.w + j;
+        m.mat.img[id] = vec{ img[3*id+0], img[3*id+1], img[3*id+2] } / 255;
+    }
+    delete img;
     m.shift(vec{0,-20,0});
     m.scale(1.2);
     m.rot(-2.5,0,0);

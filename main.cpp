@@ -36,14 +36,13 @@ struct Scene {
         const Sphere* sp = 0; const Material* mp; vec P,N;
         double ts = intersect(r,P,N,sp);
         if (sp) mp = &sp->M;
-        double tm = inf;
         Material mm{vec()};
         for (const auto& m: meshes) {
             tri_idx ii;
             vec P2,N2, alb;
             double alt = m.intersect(r,P2,N2,alb);
-            if (alt < tm) {
-                tm = alt; mp = &mm;
+            if (alt < ts) {
+                ts = alt; mp = &mm;
                 P = P2; N = N2; mm.albedo = alb;
             }
         }
@@ -82,6 +81,12 @@ struct Scene {
     }
 };
 
+int depth(BVH* node) {
+    if (node->leaf) return 1;
+    auto [l,r] = node->kids;
+    return 1 + std::max(depth(l),depth(r));
+}
+
 void init(Scene& scene) {
 
     scene.spheres = {
@@ -96,8 +101,8 @@ void init(Scene& scene) {
         {{0,0,-1000},940,{vec{5,255,161}/255}},
         {{-10,25,20},10,{1.5e10,LIGHT}},
     };
-    
     scene.meshes.push_back( load_cat() );
+    // std::cout << depth(scene.meshes[0].bvh) << '\n';
 }
 
 struct Camera {
@@ -111,7 +116,7 @@ int main() {
     Camera cam({0,0,55},60*M_PI/180);
 
     const int W = 600, H = 400;
-    const int n_sampl = 2, max_depth = 5;
+    const int n_sampl = 20, max_depth = 5;
     double DoF = .5;
     double AA = .2;
     uint8_t img[H][W][3];
