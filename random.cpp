@@ -23,3 +23,12 @@ vec random_pow(const vec& N, double alpha) {
     double z = pow(uni(),1/(alpha+1)), ang = 2*M_PI * uni();
 //    double r = sqrt()
 }
+
+vec uni_sphere() {
+    double r1 = uni(), r2 = uni();
+    return {
+        cos(2*M_PI*r1) * sqrt(r2*(1-r2)),
+        sin(2*M_PI*r1) * sqrt(r2*(1-r2)),
+        1 - 2*r2
+    };
+}
