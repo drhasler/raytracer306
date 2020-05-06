@@ -21,7 +21,7 @@ void SOTCT(std::vector<vec>& I, const std::vector<vec>& M) {
     if (M.size() != n) { std::cerr << "not same size!\n"; exit(1); }
     for (int i = 0; i < 100; i++) {
         vec v = uni_sphere();
-        std::vector<std::pair<double,double>> vi(n), vm(n);
+        std::vector<std::pair<double,int>> vi(n), vm(n);
         for (int i = 0; i < n; i++)
             vi[i] = { dot(v,I[i]), i };
         for (int i = 0; i < n; i++)
