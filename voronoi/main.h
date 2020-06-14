@@ -30,10 +30,9 @@ double norm(const vec2& v) { return sqrt(dot(v,v)); }
 std::ostream& operator<<(std::ostream& os, const vec2& p)
 { return os << '(' << p.x << ',' << p.y << ')'; }
 
-struct Bbox { double xlo, xhi, ylo, yhi; };
-
 // convex power cell
 
+struct Bbox { double xlo, xhi, ylo, yhi; };
 struct Cell {
     vec2 kern; double wkern;
     std::vector<vec2> pts = {{0,0},{1,0},{1,1},{0,1}};
@@ -46,7 +45,7 @@ struct Cell {
     double area() const;
     double inertia() const; // wrt kern
     vec2 centroid() const;
-    Bbox bbox(double scale) const;
+    Bbox bbox(double scale = 1) const;
 };
 
 typedef std::vector<Cell> Diagram;
@@ -148,7 +147,7 @@ void optimize(args_t args, double* x) {
     std::cout << "status code: " << ret << std::endl;
 }
 
-// power cell test
+// petri dish tasting
 
 void save_svg(const Diagram &cells, const char* fname);
 void test_powercell(int N) {
@@ -194,7 +193,7 @@ void simulate(int N, int M, double f) { // N watr, M air
         optimize( {pts, lam} , w);
         auto cells = get_diagram(pts, w);
         char fname[256];
-        sprintf(fname, "pics/frame%d.png", i);
+        sprintf(fname, "pics/frame%03d.png", i);
         save_png(cells, fname, N);
         for (int i = 0; i < N+M; i++) {
             vec2 a = (cells[i].centroid() - pts[i]) * k;
@@ -353,7 +352,7 @@ void save_svg(const Diagram& diagram, const char* fname) {
 	fclose(f);
 }
 
-Bbox Cell::bbox(double scale = 1) const {
+Bbox Cell::bbox(double scale) const {
     double x0 = 1e9, x1 = -1e9,
            y0 = 1e9, y1 = -1e9;
     for (vec2 v: pts) {
@@ -369,7 +368,7 @@ Bbox Cell::bbox(double scale = 1) const {
 void save_png(const Diagram &cells, const char* filename, int N = 0) {
     int W = 1000, H = 1000;
     std::vector<unsigned char> image(W*H * 3, 255);
-#pragma omp parallel for schedule(dynamic)
+#pragma omp parallel for
     for (int i = 0; i < (int)cells.size(); i++) {
         const auto& cell = cells[i];
         int n = cell.pts.size();

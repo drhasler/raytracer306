@@ -128,7 +128,7 @@ enum {
     LBFGSERR_INCORRECT_TMINMAX,
     /** A rounding error occurred; alternatively, no line-search step
         satisfies the sufficient decrease and curvature conditions. */
-    LBFGSERR_ROUNDING_ERROR,
+    LBFGSERR_ROUNDING_ERROR,  // -1001
     /** The line-search step became smaller than lbfgs_parameter_t::min_step. */
     LBFGSERR_MINIMUMSTEP,
     /** The line-search step became larger than lbfgs_parameter_t::max_step. */
