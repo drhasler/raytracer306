@@ -13,6 +13,7 @@ CSE306 - Ecole polytechnique, Bachelor of Science - SS20
 
 ## sections
 `main.h` is splitted into several sections:
+
 - `convex power cell`: cells are polygons centered in their seed, and constructed by repeatedly adding points
 - `random stuff`: several functions to sample points,
   and Lloyd's algorithm is implemented in `social_distancing`
