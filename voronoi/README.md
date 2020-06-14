@@ -8,7 +8,7 @@ CSE306 - Ecole polytechnique, Bachelor of Science - SS20
 - `main.h` the actual code
 - `incl/` libraries to be include (lbfgs, nanoflann, stb)
 - `pics/` outputs
-- `report.pdf = (pdf)*this`
+- `report.pdf = (pdf)README.md`
 
 
 ## sections

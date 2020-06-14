@@ -39,7 +39,7 @@ struct Cell {
 
     Cell() {}
     Cell(const vec2& k, double w) : kern(k), wkern(w) // offset pts by kern
-    { std::for_each(pts.begin(), pts.end(), [&](vec2& v){ v -= k; }); }
+    { for (vec2& v: pts) v -= k; }
     void add_pt(vec2 p, double w); // consider other cell
 
     double area() const;
@@ -76,10 +76,10 @@ petri_dish(int N) { // food in the middle, ppl everywhere
 
     std::vector<double> lam(N);
     std::transform(pts.begin(), pts.end(), lam.begin(),
-            [&](vec2& v){ return exp(-6*norm(v-C)); });
+            [&](vec2& v){ return exp(-5*norm(v-C)); });
 
     double s = std::accumulate(lam.begin(), lam.end(), 0.);
-    std::for_each(lam.begin(), lam.end(), [&](double& d){ d /= s; });
+    for (double& d: lam) d /= s;
 
     return { pts, lam };
 }
@@ -130,10 +130,12 @@ static double evaluate(void *instance, const double *w, double *g, const int n, 
 }
 
 static int progress(void *instance, const double *x, const double *g, const double fx, const double xnorm, const double gnorm, const double step, int n, int k, int ls) {
+    /*
     printf("Iteration %d:\n", k);
     printf("  fx = %f\n", fx);
     printf("  xnorm = %f, gnorm = %f, step = %f\n", xnorm, gnorm, step);
     printf("\n");
+    */
     return 0;
 }
 
@@ -144,7 +146,7 @@ void optimize(args_t args, double* x) {
     lbfgs_parameter_t param;
     lbfgs_parameter_init(&param);
     int ret = lbfgs(n, x, &fx, evaluate, progress, &args, &param);
-    std::cout << "status code: " << ret << std::endl;
+    if (ret) std::cout << "status code: " << ret << std::endl;
 }
 
 // petri dish tasting
@@ -180,11 +182,16 @@ void save_png(const Diagram &cells, const char* fname, int N);
 void simulate(int N, int M, double f) { // N watr, M air
     auto [pts, lam] = init_sim(N,M,f);
     std::vector<vec2> vel(N+M);
-    double k = 30;
-    vec2 G = { 0, -9.8 };
 
-    int n_steps = 30;
-    double dt = .002;
+    int sub = 1;
+    int n_steps = 30*sub;
+    double dt = .2;
+    double eps = .04;
+    double mass = 200;
+
+    double k = 1/(eps*eps*mass);
+    vec2 g = { 0, -9.8 };
+
 
     double w[N+M];
     std::fill(w, w+N+M, 0);
@@ -192,12 +199,15 @@ void simulate(int N, int M, double f) { // N watr, M air
     for (int i = 0; i < n_steps; i++) {
         optimize( {pts, lam} , w);
         auto cells = get_diagram(pts, w);
-        char fname[256];
-        sprintf(fname, "pics/frame%03d.png", i);
-        save_png(cells, fname, N);
+        if (i%sub == 0) {
+            char fname[256];
+            sprintf(fname, "pics/frame%03d.png", i/sub);
+            std::cout << fname << '\n';
+            save_png(cells, fname, N);
+        }
         for (int i = 0; i < N+M; i++) {
             vec2 a = (cells[i].centroid() - pts[i]) * k;
-            if (i < N) a += G; // watr
+            if (i < N) a += g; // watr
             vel[i] += a * dt;
             pts[i] += vel[i] * dt;
         }
@@ -208,7 +218,7 @@ void simulate(int N, int M, double f) { // N watr, M air
 
 void Cell::add_pt(vec2 p, double w) {
     p -= kern;
-    vec2 p2 = p * ( .5  + (wkern-w) / dot(p,p) );
+    vec2 p2 = p * ( .5  + (wkern-w) / (2*dot(p,p)) );
     double th = dot(p2,p);
     auto inside = [&](const vec2& o) { return dot(o,p) < th; };
 
@@ -256,10 +266,7 @@ double Cell::inertia() const {
 
 vec2 Cell::centroid() const {
     const int n = pts.size();
-    if (!n) {
-      if (kern.y > 0) return kern;
-      return { kern.x, 0};
-    }
+    if (!n) return kern;
     vec2 C = {0,0};
     for (int i = 0; i < n; i++) {
         const vec2 &a = pts[i], &b = pts[(i+1) % n];
